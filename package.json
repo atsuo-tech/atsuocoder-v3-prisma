@@ -1,6 +1,6 @@
 {
   "name": "@atsuo-tech/atsuocoder-v3-prisma",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "scripts": {
     "clean": "rm -rf ./dist/prisma",
     "generate": "npm run clean && npx prisma generate && npx tsc",
