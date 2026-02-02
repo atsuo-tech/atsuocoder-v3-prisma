@@ -71,6 +71,7 @@ model Contest {
   endTime                DateTime
   isPermanent            Boolean
   ratedRange             Int[]
+  penalty                Int                     @default(0) // in seconds
   TaskUse                TaskUse[]
   isPublic               Boolean                 @default(false)
   ContestManagement      ContestManagement[]
@@ -105,22 +106,22 @@ model ContestRegistration {
 }
 
 model ParticipantTaskResult {
-  registration     ContestRegistration @relation(fields: [userDataUniqueId, contestUniqueId], references: [userDataUniqueId, contestUniqueId])
-  task             Task                @relation(fields: [taskUniqueId], references: [uniqueId])
-  userDataUniqueId String
-  contestUniqueId  String
-  taskUniqueId     String
+  registration         ContestRegistration @relation(fields: [registrationUniqueId], references: [uniqueId])
+  task                 Task                @relation(fields: [taskUniqueId], references: [uniqueId])
+  registrationUniqueId String
+  taskUniqueId         String
 
   score        Int       @default(0)
   lastSubmitAt DateTime?
   penalty      Int       @default(0)
 
-  setResult      SubmissionSetResult[]
-  userData       UserData?             @relation(fields: [userDataUserId], references: [userId])
-  userDataUserId String?
-  contest        Contest               @relation(fields: [contestUniqueId], references: [uniqueId])
+  setResult       SubmissionSetResult[]
+  userData        UserData?             @relation(fields: [userDataUserId], references: [userId])
+  userDataUserId  String?
+  contest         Contest?              @relation(fields: [contestUniqueId], references: [uniqueId])
+  contestUniqueId String?
 
-  @@unique([userDataUniqueId, contestUniqueId, taskUniqueId])
+  @@unique([registrationUniqueId, taskUniqueId])
 }
 
 enum ContestManagementRole {
@@ -314,19 +315,18 @@ model SubmissionCaseResult {
 }
 
 model SubmissionSetResult {
-  uniqueId                              String                 @id @default(uuid())
-  submission                            Submission             @relation(fields: [submissionUniqueId], references: [uniqueId])
-  submissionUniqueId                    String
-  testSet                               TestSet                @relation(fields: [testSetUniqueId], references: [uniqueId])
-  testSetUniqueId                       String
-  score                                 Int                    @default(0)
-  result                                JudgeResult
-  timeUsed                              Int                    @default(-1)
-  memoryUsed                            Int                    @default(-1)
-  participantTaskResult                 ParticipantTaskResult? @relation(fields: [participantTaskResultUserDataUniqueId, participantTaskResultContestUniqueId, participantTaskResultTaskUniqueId], references: [userDataUniqueId, contestUniqueId, taskUniqueId])
-  participantTaskResultUserDataUniqueId String?
-  participantTaskResultContestUniqueId  String?
-  participantTaskResultTaskUniqueId     String?
+  uniqueId                                  String                 @id @default(uuid())
+  submission                                Submission             @relation(fields: [submissionUniqueId], references: [uniqueId])
+  submissionUniqueId                        String
+  testSet                                   TestSet                @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testSetUniqueId                           String
+  score                                     Int                    @default(0)
+  result                                    JudgeResult
+  timeUsed                                  Int                    @default(-1)
+  memoryUsed                                Int                    @default(-1)
+  participantTaskResult                     ParticipantTaskResult? @relation(fields: [participantTaskResultRegistrationUniqueId, participantTaskResultTaskUniqueId], references: [registrationUniqueId, taskUniqueId])
+  participantTaskResultRegistrationUniqueId String?
+  participantTaskResultTaskUniqueId         String?
 }
 
 model LanguageData {
