@@ -95,6 +95,11 @@ model ContestRegistration {
   userDataUniqueId       String
   participantTaskResults ParticipantTaskResult[]
 
+  score         Int       @default(0)
+  lastSubmitAt  DateTime?
+  penalty       Int       @default(0)
+  penaltiedTime DateTime?
+
   @@unique([contestUniqueId, userDataUniqueId])
 }
 
