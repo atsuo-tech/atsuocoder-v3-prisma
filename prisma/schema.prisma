@@ -1,0 +1,313 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SuperAdmin
+  Admin
+  Member
+}
+
+model UserData {
+  userId              String                @id @unique
+  role                UserRole              @default(Member)
+  TaskManagement      TaskManagement[]
+  ContestManagement   ContestManagement[]
+  Clar                Clar[]
+  ClarAnswer          ClarAnswer[]
+  Submission          Submission[]
+  ContestRegistration ContestRegistration[]
+  Editorial           Editorial[]
+  Rating              Rating[]
+  RatingChangeLog     RatingChangeLog[]
+}
+
+model RatingSystem {
+  uniqueId        String            @id @default(uuid())
+  ratingName      String            @unique
+  Rating          Rating[]
+  RatingChangeLog RatingChangeLog[]
+}
+
+model Rating {
+  uniqueId             String       @id @default(uuid())
+  user                 UserData     @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId     String
+  ratingSystem         RatingSystem @relation(fields: [ratingSystemUniqueId], references: [uniqueId])
+  ratingSystemUniqueId String
+  innerRating          Float
+  rating               Float
+
+  @@unique([userDataUniqueId, ratingSystemUniqueId])
+}
+
+model RatingChangeLog {
+  uniqueId             String       @id @default(uuid())
+  user                 UserData     @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId     String
+  contest              Contest      @relation(fields: [contestUniqueId], references: [uniqueId])
+  changedAt            DateTime     @default(now())
+  ratingSystem         RatingSystem @relation(fields: [ratingSystemUniqueId], references: [uniqueId])
+  ratingSystemUniqueId String
+  oldRating            Float
+  newRating            Float
+  performance          Float
+  contestUniqueId      String
+  rank                 Int          @default(-1)
+}
+
+model Contest {
+  uniqueId            String                @id @default(uuid())
+  urlId               String                @unique
+  title               String
+  description         String
+  startTime           DateTime
+  endTime             DateTime
+  isPermanent         Boolean
+  ratedRange          Int[]
+  TaskUse             TaskUse[]
+  isPublic            Boolean               @default(false)
+  ContestManagement   ContestManagement[]
+  Submission          Submission[]
+  Clar                Clar[]
+  ContestRegistration ContestRegistration[]
+  RatingChangeLog     RatingChangeLog[]
+}
+
+enum RegistrationType {
+  Rated
+  Unrated
+}
+
+model ContestRegistration {
+  uniqueId         String           @id @default(uuid())
+  type             RegistrationType
+  contest          Contest          @relation(fields: [contestUniqueId], references: [uniqueId])
+  contestUniqueId  String
+  user             UserData         @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId String
+
+  @@unique([contestUniqueId, userDataUniqueId])
+}
+
+enum ContestManagementRole {
+  Editor
+  Tester
+}
+
+model ContestManagement {
+  uniqueId         String                @id @default(uuid())
+  user             UserData              @relation(fields: [userDataUniqueId], references: [userId])
+  contest          Contest               @relation(fields: [contestUniqueId], references: [uniqueId])
+  role             ContestManagementRole
+  userDataUniqueId String
+  contestUniqueId  String
+
+  @@unique([userDataUniqueId, contestUniqueId])
+}
+
+enum TaskType {
+  Batch
+  Communication
+  OutputOnly
+}
+
+model Task {
+  uniqueId    String   @id @default(uuid())
+  title       String
+  problem     String
+  urlId       String   @unique
+  timeLimit   Int
+  memoryLimit Int
+  score       Int
+  type        TaskType @default(Batch)
+
+  TaskUse        TaskUse[]
+  TestSet        TestSet[]
+  TaskManagement TaskManagement[]
+  Clar           Clar[]
+  Submission     Submission[]
+  TestCase       TestCase[]
+  Editorial      Editorial[]
+}
+
+model TaskUse {
+  contest         Contest @relation(fields: [contestUniqueId], references: [uniqueId])
+  task            Task    @relation(fields: [taskUniqueId], references: [uniqueId])
+  index           Int     @default(0)
+  assignment      String
+  contestUniqueId String
+  taskUniqueId    String
+
+  @@id([contestUniqueId, taskUniqueId])
+  @@unique([contestUniqueId, assignment])
+  @@index([index, assignment])
+}
+
+model Clar {
+  uniqueId           String      @id @default(uuid())
+  question           String
+  isPublishable      Boolean
+  contest            Contest     @relation(fields: [contestUniqueId], references: [uniqueId])
+  task               Task?       @relation(fields: [taskUniqueId], references: [uniqueId])
+  taskUniqueId       String?
+  questioner         UserData    @relation(fields: [questionerUniqueId], references: [userId])
+  questionerUniqueId String
+  ClarAnswer         ClarAnswer?
+  answerId           String?
+  contestUniqueId    String
+}
+
+model ClarAnswer {
+  uniqueId         String   @id @default(uuid())
+  clar             Clar     @relation(fields: [clarUniqueId], references: [uniqueId])
+  answer           String
+  isPublic         Boolean
+  answerer         UserData @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId String
+  clarUniqueId     String   @unique @default(uuid())
+}
+
+model TestSet {
+  uniqueId             String                @id @default(uuid())
+  setIndex             Int
+  setName              String
+  task                 Task                  @relation(fields: [taskUniqueId], references: [uniqueId])
+  taskUniqueId         String
+  score                Int                   @default(0)
+  valid                Boolean               @default(true)
+  TestCaseUse          TestCaseUse[]
+  submissionSetResults SubmissionSetResult[]
+
+  @@unique([taskUniqueId, setIndex])
+  @@unique([taskUniqueId, setName])
+}
+
+model TestCase {
+  uniqueId              String                 @id @default(uuid())
+  caseName              String
+  TestCaseUse           TestCaseUse[]
+  task                  Task                   @relation(fields: [taskUniqueId], references: [uniqueId])
+  taskUniqueId          String
+  submissionCaseResults SubmissionCaseResult[]
+  valid                 Boolean                @default(true)
+
+  @@unique([taskUniqueId, caseName])
+}
+
+model TestCaseUse {
+  testset          TestSet  @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testSetUniqueId  String
+  testcase         TestCase @relation(fields: [testCaseUniqueId], references: [uniqueId])
+  testCaseUniqueId String
+
+  @@unique([testSetUniqueId, testCaseUniqueId])
+}
+
+enum TaskManagementRole {
+  Tester
+  Editor
+}
+
+model TaskManagement {
+  uniqueId         String             @id @default(uuid())
+  task             Task               @relation(fields: [taskUniqueId], references: [uniqueId])
+  user             UserData           @relation(fields: [userDataUniqueId], references: [userId])
+  taskUniqueId     String
+  userDataUniqueId String
+  role             TaskManagementRole
+
+  @@unique([taskUniqueId, userDataUniqueId])
+}
+
+model Notification {
+  uniqueId    String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  title       String
+  description String
+  isPublic    Boolean
+}
+
+enum JudgeResult {
+  Judging
+  AC
+  WA
+  TLE
+  MLE
+  QLE
+  RE
+  CE
+  PE
+  OLE
+  IE
+}
+
+model Submission {
+  uniqueId         String       @id @default(uuid())
+  language         LanguageData @relation(fields: [languageDataLanguageId], references: [languageId])
+  user             UserData     @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId String
+  contest          Contest      @relation(fields: [contestUniqueId], references: [uniqueId])
+  task             Task         @relation(fields: [taskUniqueId], references: [uniqueId])
+  taskUniqueId     String
+  createdAt        DateTime     @default(now())
+  contestUniqueId  String
+  code             String
+  queued           Boolean      @default(false)
+
+  score       Int         @default(0)
+  maxTime     Int         @default(0)
+  maxMemory   Int         @default(0)
+  totalResult JudgeResult @default(Judging)
+
+  languageDataLanguageId Int
+  submissionCaseResults  SubmissionCaseResult[]
+  submissionSetResults   SubmissionSetResult[]
+}
+
+model SubmissionCaseResult {
+  uniqueId           String      @id @default(uuid())
+  submission         Submission  @relation(fields: [submissionUniqueId], references: [uniqueId])
+  submissionUniqueId String
+  testCase           TestCase    @relation(fields: [testCaseUniqueId], references: [uniqueId])
+  testCaseUniqueId   String
+  status             String
+  timeUsed           Int
+  memoryUsed         Int
+  result             JudgeResult
+  detialedResult     String      @default("")
+}
+
+model SubmissionSetResult {
+  uniqueId           String      @id @default(uuid())
+  submission         Submission  @relation(fields: [submissionUniqueId], references: [uniqueId])
+  submissionUniqueId String
+  testSet            TestSet     @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testSetUniqueId    String
+  score              Int         @default(0)
+  result             JudgeResult
+}
+
+model LanguageData {
+  languageId   Int          @id
+  name         String
+  extension    String
+  buildCommand String
+  runCommand   String
+  Submission   Submission[]
+}
+
+model Editorial {
+  uniqueId         String   @id @default(uuid())
+  title            String
+  description      String
+  editor           UserData @relation(fields: [userDataUniqueId], references: [userId])
+  task             Task     @relation(fields: [taskUniqueId], references: [uniqueId])
+  taskUniqueId     String
+  userDataUniqueId String
+}
