@@ -282,6 +282,7 @@ model SubmissionCaseResult {
   memoryUsed         Int
   result             JudgeResult
   detialedResult     String      @default("")
+  score              Int?
 }
 
 model SubmissionSetResult {
