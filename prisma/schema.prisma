@@ -102,7 +102,7 @@ model ContestRegistration {
   penaltiedTime DateTime?
 
   @@unique([contestUniqueId, userDataUniqueId])
-  @@index([score, penaltiedTime])
+  @@index([contestUniqueId, score, penaltiedTime])
 }
 
 model ParticipantTaskResult {
