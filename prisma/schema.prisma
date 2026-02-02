@@ -277,11 +277,10 @@ model SubmissionCaseResult {
   submissionUniqueId String
   testCase           TestCase    @relation(fields: [testCaseUniqueId], references: [uniqueId])
   testCaseUniqueId   String
-  status             String
   timeUsed           Int
   memoryUsed         Int
   result             JudgeResult
-  detialedResult     String      @default("")
+  detialedResult     String?     @default("")
   score              Int?
 }
 
