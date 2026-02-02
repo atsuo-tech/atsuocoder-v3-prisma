@@ -260,10 +260,11 @@ model Submission {
   code             String
   queued           Boolean      @default(false)
 
-  score       Int         @default(0)
-  maxTime     Int         @default(0)
-  maxMemory   Int         @default(0)
-  totalResult JudgeResult @default(Judging)
+  score           Int         @default(0)
+  maxTime         Int         @default(0)
+  maxMemory       Int         @default(0)
+  totalResult     JudgeResult @default(Judging)
+  compilerMessage String      @default("")
 
   languageDataLanguageId Int
   submissionCaseResults  SubmissionCaseResult[]
