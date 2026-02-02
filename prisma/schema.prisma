@@ -14,17 +14,18 @@ enum UserRole {
 }
 
 model UserData {
-  userId              String                @id @unique
-  role                UserRole              @default(Member)
-  TaskManagement      TaskManagement[]
-  ContestManagement   ContestManagement[]
-  Clar                Clar[]
-  ClarAnswer          ClarAnswer[]
-  Submission          Submission[]
-  ContestRegistration ContestRegistration[]
-  Editorial           Editorial[]
-  Rating              Rating[]
-  RatingChangeLog     RatingChangeLog[]
+  userId                 String                  @id @unique
+  role                   UserRole                @default(Member)
+  TaskManagement         TaskManagement[]
+  ContestManagement      ContestManagement[]
+  Clar                   Clar[]
+  ClarAnswer             ClarAnswer[]
+  Submission             Submission[]
+  ContestRegistration    ContestRegistration[]
+  Editorial              Editorial[]
+  Rating                 Rating[]
+  RatingChangeLog        RatingChangeLog[]
+  participantTaskResults ParticipantTaskResult[]
 }
 
 model RatingSystem {
@@ -62,21 +63,22 @@ model RatingChangeLog {
 }
 
 model Contest {
-  uniqueId            String                @id @default(uuid())
-  urlId               String                @unique
-  title               String
-  description         String
-  startTime           DateTime
-  endTime             DateTime
-  isPermanent         Boolean
-  ratedRange          Int[]
-  TaskUse             TaskUse[]
-  isPublic            Boolean               @default(false)
-  ContestManagement   ContestManagement[]
-  Submission          Submission[]
-  Clar                Clar[]
-  ContestRegistration ContestRegistration[]
-  RatingChangeLog     RatingChangeLog[]
+  uniqueId               String                  @id @default(uuid())
+  urlId                  String                  @unique
+  title                  String
+  description            String
+  startTime              DateTime
+  endTime                DateTime
+  isPermanent            Boolean
+  ratedRange             Int[]
+  TaskUse                TaskUse[]
+  isPublic               Boolean                 @default(false)
+  ContestManagement      ContestManagement[]
+  Submission             Submission[]
+  Clar                   Clar[]
+  ContestRegistration    ContestRegistration[]
+  RatingChangeLog        RatingChangeLog[]
+  participantTaskResults ParticipantTaskResult[]
 }
 
 enum RegistrationType {
@@ -85,14 +87,34 @@ enum RegistrationType {
 }
 
 model ContestRegistration {
-  uniqueId         String           @id @default(uuid())
-  type             RegistrationType
-  contest          Contest          @relation(fields: [contestUniqueId], references: [uniqueId])
-  contestUniqueId  String
-  user             UserData         @relation(fields: [userDataUniqueId], references: [userId])
-  userDataUniqueId String
+  uniqueId               String                  @id @default(uuid())
+  type                   RegistrationType
+  contest                Contest                 @relation(fields: [contestUniqueId], references: [uniqueId])
+  contestUniqueId        String
+  user                   UserData                @relation(fields: [userDataUniqueId], references: [userId])
+  userDataUniqueId       String
+  participantTaskResults ParticipantTaskResult[]
 
   @@unique([contestUniqueId, userDataUniqueId])
+}
+
+model ParticipantTaskResult {
+  registration     ContestRegistration @relation(fields: [userDataUniqueId, contestUniqueId], references: [userDataUniqueId, contestUniqueId])
+  task             Task                @relation(fields: [taskUniqueId], references: [uniqueId])
+  userDataUniqueId String
+  contestUniqueId  String
+  taskUniqueId     String
+
+  score        Int       @default(0)
+  lastSubmitAt DateTime?
+  penalty      Int       @default(0)
+
+  setResult      SubmissionSetResult[]
+  userData       UserData?             @relation(fields: [userDataUserId], references: [userId])
+  userDataUserId String?
+  contest        Contest               @relation(fields: [contestUniqueId], references: [uniqueId])
+
+  @@unique([userDataUniqueId, contestUniqueId, taskUniqueId])
 }
 
 enum ContestManagementRole {
@@ -127,13 +149,14 @@ model Task {
   score       Int
   type        TaskType @default(Batch)
 
-  TaskUse        TaskUse[]
-  TestSet        TestSet[]
-  TaskManagement TaskManagement[]
-  Clar           Clar[]
-  Submission     Submission[]
-  TestCase       TestCase[]
-  Editorial      Editorial[]
+  TaskUse                TaskUse[]
+  TestSet                TestSet[]
+  TaskManagement         TaskManagement[]
+  Clar                   Clar[]
+  Submission             Submission[]
+  TestCase               TestCase[]
+  Editorial              Editorial[]
+  participantTaskResults ParticipantTaskResult[]
 }
 
 model TaskUse {
@@ -285,15 +308,19 @@ model SubmissionCaseResult {
 }
 
 model SubmissionSetResult {
-  uniqueId           String      @id @default(uuid())
-  submission         Submission  @relation(fields: [submissionUniqueId], references: [uniqueId])
-  submissionUniqueId String
-  testSet            TestSet     @relation(fields: [testSetUniqueId], references: [uniqueId])
-  testSetUniqueId    String
-  score              Int         @default(0)
-  result             JudgeResult
-  timeUsed           Int         @default(-1)
-  memoryUsed         Int         @default(-1)
+  uniqueId                              String                 @id @default(uuid())
+  submission                            Submission             @relation(fields: [submissionUniqueId], references: [uniqueId])
+  submissionUniqueId                    String
+  testSet                               TestSet                @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testSetUniqueId                       String
+  score                                 Int                    @default(0)
+  result                                JudgeResult
+  timeUsed                              Int                    @default(-1)
+  memoryUsed                            Int                    @default(-1)
+  participantTaskResult                 ParticipantTaskResult? @relation(fields: [participantTaskResultUserDataUniqueId, participantTaskResultContestUniqueId, participantTaskResultTaskUniqueId], references: [userDataUniqueId, contestUniqueId, taskUniqueId])
+  participantTaskResultUserDataUniqueId String?
+  participantTaskResultContestUniqueId  String?
+  participantTaskResultTaskUniqueId     String?
 }
 
 model LanguageData {
