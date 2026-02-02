@@ -292,6 +292,8 @@ model SubmissionSetResult {
   testSetUniqueId    String
   score              Int         @default(0)
   result             JudgeResult
+  timeUsed           Int         @default(-1)
+  memoryUsed         Int         @default(-1)
 }
 
 model LanguageData {
