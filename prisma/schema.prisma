@@ -312,6 +312,8 @@ model SubmissionCaseResult {
   result             JudgeResult
   detialedResult     String?     @default("")
   score              Int?
+
+  @@unique([submissionUniqueId, testCaseUniqueId])
 }
 
 model SubmissionSetResult {
