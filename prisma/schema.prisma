@@ -336,12 +336,11 @@ model SubmissionSetResult {
 }
 
 model LanguageData {
-  languageId   Int          @id
-  name         String
-  extension    String
-  buildCommand String
-  runCommand   String
-  Submission   Submission[]
+  languageId Int          @id
+  name       String
+  extension  String
+  cloudImage String       @default("asia-northeast1-docker.pkg.dev/atsuocoder-19291/judge-job-container/judge-base-container:latest")
+  Submission Submission[]
 }
 
 model Editorial {
