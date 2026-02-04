@@ -314,6 +314,7 @@ model SubmissionCaseResult {
   score              Int?
 
   @@unique([submissionUniqueId, testCaseUniqueId])
+  @@index([testCaseUniqueId])
 }
 
 model SubmissionSetResult {
@@ -329,6 +330,9 @@ model SubmissionSetResult {
   participantTaskResult                     ParticipantTaskResult? @relation(fields: [participantTaskResultRegistrationUniqueId, participantTaskResultTaskUniqueId], references: [registrationUniqueId, taskUniqueId])
   participantTaskResultRegistrationUniqueId String?
   participantTaskResultTaskUniqueId         String?
+
+  @@unique([submissionUniqueId, testSetUniqueId])
+  @@index([testSetUniqueId])
 }
 
 model LanguageData {
