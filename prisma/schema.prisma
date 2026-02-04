@@ -339,6 +339,7 @@ model LanguageData {
   languageId Int          @id
   name       String
   extension  String
+  editorMode String       @default("text/plain")
   cloudImage String       @default("asia-northeast1-docker.pkg.dev/atsuocoder-19291/judge-job-container/judge-base-container:latest")
   Submission Submission[]
 }
