@@ -107,7 +107,7 @@ model ContestRegistration {
 
 model ParticipantTaskResult {
   registration         ContestRegistration @relation(fields: [registrationUniqueId], references: [uniqueId])
-  task                 Task                @relation(fields: [taskUniqueId], references: [uniqueId])
+  task                 Task                @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   registrationUniqueId String
   taskUniqueId         String
 
@@ -168,7 +168,7 @@ model Task {
 
 model TaskUse {
   contest         Contest @relation(fields: [contestUniqueId], references: [uniqueId])
-  task            Task    @relation(fields: [taskUniqueId], references: [uniqueId])
+  task            Task    @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   index           Int     @default(0)
   assignment      String
   contestUniqueId String
@@ -184,7 +184,7 @@ model Clar {
   question           String
   isPublishable      Boolean
   contest            Contest     @relation(fields: [contestUniqueId], references: [uniqueId])
-  task               Task?       @relation(fields: [taskUniqueId], references: [uniqueId])
+  task               Task?       @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: SetNull)
   taskUniqueId       String?
   questioner         UserData    @relation(fields: [questionerUniqueId], references: [userId])
   questionerUniqueId String
@@ -195,7 +195,7 @@ model Clar {
 
 model ClarAnswer {
   uniqueId         String   @id @default(uuid())
-  clar             Clar     @relation(fields: [clarUniqueId], references: [uniqueId])
+  clar             Clar     @relation(fields: [clarUniqueId], references: [uniqueId], onDelete: Cascade)
   answer           String
   isPublic         Boolean
   answerer         UserData @relation(fields: [userDataUniqueId], references: [userId])
@@ -207,7 +207,7 @@ model TestSet {
   uniqueId             String                @id @default(uuid())
   setIndex             Int
   setName              String
-  task                 Task                  @relation(fields: [taskUniqueId], references: [uniqueId])
+  task                 Task                  @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   taskUniqueId         String
   score                Int                   @default(0)
   valid                Boolean               @default(true)
@@ -222,7 +222,7 @@ model TestCase {
   uniqueId              String                 @id @default(uuid())
   caseName              String
   TestCaseUse           TestCaseUse[]
-  task                  Task                   @relation(fields: [taskUniqueId], references: [uniqueId])
+  task                  Task                   @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   taskUniqueId          String
   submissionCaseResults SubmissionCaseResult[]
   valid                 Boolean                @default(true)
@@ -231,9 +231,9 @@ model TestCase {
 }
 
 model TestCaseUse {
-  testset          TestSet  @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testset          TestSet  @relation(fields: [testSetUniqueId], references: [uniqueId], onDelete: Cascade)
   testSetUniqueId  String
-  testcase         TestCase @relation(fields: [testCaseUniqueId], references: [uniqueId])
+  testcase         TestCase @relation(fields: [testCaseUniqueId], references: [uniqueId], onDelete: Cascade)
   testCaseUniqueId String
 
   @@unique([testSetUniqueId, testCaseUniqueId])
@@ -246,7 +246,7 @@ enum TaskManagementRole {
 
 model TaskManagement {
   uniqueId         String             @id @default(uuid())
-  task             Task               @relation(fields: [taskUniqueId], references: [uniqueId])
+  task             Task               @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   user             UserData           @relation(fields: [userDataUniqueId], references: [userId])
   taskUniqueId     String
   userDataUniqueId String
@@ -283,7 +283,7 @@ model Submission {
   user             UserData     @relation(fields: [userDataUniqueId], references: [userId])
   userDataUniqueId String
   contest          Contest      @relation(fields: [contestUniqueId], references: [uniqueId])
-  task             Task         @relation(fields: [taskUniqueId], references: [uniqueId])
+  task             Task         @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   taskUniqueId     String
   createdAt        DateTime     @default(now())
   contestUniqueId  String
@@ -305,7 +305,7 @@ model SubmissionCaseResult {
   uniqueId           String      @id @default(uuid())
   submission         Submission  @relation(fields: [submissionUniqueId], references: [uniqueId])
   submissionUniqueId String
-  testCase           TestCase    @relation(fields: [testCaseUniqueId], references: [uniqueId])
+  testCase           TestCase    @relation(fields: [testCaseUniqueId], references: [uniqueId], onDelete: Cascade)
   testCaseUniqueId   String
   timeUsed           Int
   memoryUsed         Int
@@ -321,7 +321,7 @@ model SubmissionSetResult {
   uniqueId                                  String                 @id @default(uuid())
   submission                                Submission             @relation(fields: [submissionUniqueId], references: [uniqueId])
   submissionUniqueId                        String
-  testSet                                   TestSet                @relation(fields: [testSetUniqueId], references: [uniqueId])
+  testSet                                   TestSet                @relation(fields: [testSetUniqueId], references: [uniqueId], onDelete: Cascade)
   testSetUniqueId                           String
   score                                     Int                    @default(0)
   result                                    JudgeResult
@@ -349,7 +349,7 @@ model Editorial {
   title            String
   description      String
   editor           UserData @relation(fields: [userDataUniqueId], references: [userId])
-  task             Task     @relation(fields: [taskUniqueId], references: [uniqueId])
+  task             Task     @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   taskUniqueId     String
   userDataUniqueId String
 }
