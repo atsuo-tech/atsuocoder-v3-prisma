@@ -288,6 +288,7 @@ model Submission {
   createdAt        DateTime     @default(now())
   contestUniqueId  String
   code             String
+  codeLength       Int          @default(dbgenerated())
   queued           Boolean      @default(false)
 
   score           Int         @default(0)
