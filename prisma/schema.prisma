@@ -342,6 +342,7 @@ model LanguageData {
   extension  String
   editorMode String       @default("text/plain")
   cloudImage String       @default("asia-northeast1-docker.pkg.dev/atsuocoder-19291/judge-job-container/judge-base-container:latest")
+  judge_name String       @default("text-cat")
   Submission Submission[]
 }
 
