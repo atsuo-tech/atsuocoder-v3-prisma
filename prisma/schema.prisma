@@ -277,6 +277,7 @@ enum JudgeResult {
   PE
   OLE
   IE
+  NG
 }
 
 model Submission {
