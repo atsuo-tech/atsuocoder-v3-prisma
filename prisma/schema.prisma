@@ -347,6 +347,7 @@ model LanguageData {
   cloudImage String @default("asia-northeast1-docker.pkg.dev/atsuocoder-19291/judge-job-container/judge-base-container:latest")
   judgeName  String @unique @map("judge_name")
 
+  prebuildCommand String @default("exit")
   buildCommand    String @default("exit")
   prejudgeCommand String @default("exit")
   judgeCommand    String @default("exit")
