@@ -106,6 +106,8 @@ model ContestRegistration {
 }
 
 model ParticipantTaskResult {
+  id String @id @default(uuid()) @db.Uuid
+
   registration         ContestRegistration @relation(fields: [registrationUniqueId], references: [uniqueId])
   task                 Task                @relation(fields: [taskUniqueId], references: [uniqueId], onDelete: Cascade)
   registrationUniqueId String
@@ -342,7 +344,7 @@ model LanguageData {
   extension  String
   editorMode String       @default("text/plain")
   cloudImage String       @default("asia-northeast1-docker.pkg.dev/atsuocoder-19291/judge-job-container/judge-base-container:latest")
-  judge_name String       @default("text-cat")
+  judge_name String       @unique
   Submission Submission[]
 }
 
